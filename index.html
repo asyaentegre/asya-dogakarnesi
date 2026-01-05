@@ -61,7 +61,7 @@
     <script type="text/babel">
         const { useState } = React;
 
-        // Yerel resim kullanıyoruz (hata olmasın diye)
+        // Yerel Dosya Yolu
         const CERTIFICATE_BG_IMAGE = "./sertifika-yeni.jpg";
         const ASYA_LOGO_IMAGE = "https://i.ibb.co/FLFp4qn4/asya-ye-il-logo.jpg";
         const BACKGROUND_VIDEO = "./orman.mp4";
@@ -126,9 +126,7 @@
                 });
                 
                 sendAnalyticsEvent('hesaplama_yapildi', {
-                    'co2_degeri': co2Toplam.toFixed(2),
-                    'agac_kurtarilan': agacToplam.toFixed(2),
-                    'atık_kg': (kagitYillik + kartonYillik + elektronikYillik)
+                    'co2_degeri': co2Toplam.toFixed(2)
                 });
 
                 setShowCertificate(false);
@@ -178,7 +176,7 @@
                 try {
                     const canvas = await html2canvas(element, { 
                         scale: 2, 
-                        useCORS: false,  // Yerel dosya olduğu için false
+                        useCORS: false, 
                         allowTaint: true,
                         backgroundColor: null 
                     });
@@ -282,74 +280,3 @@
 
                     {/* SERTİFİKA MODAL */}
                     {showCertificate && sonuclar && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
-                            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowCertificate(false)}></div>
-                            
-                            <div className="relative w-full max-w-4xl flex flex-col gap-4 animate-scale-in">
-                                
-                                <div className="relative w-full">
-                                    <button onClick={() => setShowCertificate(false)} className="absolute -top-12 right-0 md:-right-12 z-50 bg-white/90 p-2 rounded-full hover:bg-red-100 text-gray-800 hover:text-red-600 transition-colors shadow-lg"><Icons.X /></button>
-                                    
-                                    {/* FOTOĞRAFI ÇEKİLECEK ALAN */}
-                                    <div id="certificate-card" className="relative w-full bg-[#fdfbf7] rounded-xl shadow-2xl overflow-hidden border-4 border-amber-700/50">
-                                        <div className="relative w-full h-auto">
-                                            {/* crossOrigin YOK */}
-                                            <img src={CERTIFICATE_BG_IMAGE} alt="Doğa Dostu Sertifikası" className="w-full h-auto block" />
-                                            
-                                            {/* YAZI KONUMLANDIRMASI (YÜZDE DOLGU İLE):
-                                                absolute inset-0 -> Tüm resmi kapla
-                                                pt-[32%] -> Üstten %32 boşluk bırak (Süslemeyi geçmek için)
-                                            */}
-                                            <div className="absolute inset-0 flex flex-col items-center pt-[32%] px-8 text-center">
-                                                <p className="text-[10px] sm:text-xs md:text-xl lg:text-2xl text-gray-800 mb-1 md:mb-4 leading-tight font-playfair font-medium italic w-full">
-                                                    Sayın <span className="font-bold">{ad ? ad : 'Doğa'} {soyad ? soyad : 'Gönüllüsü'}</span>,<br/>
-                                                    2025 yılındaki geri dönüşüm faaliyetlerinizle<br/>
-                                                    gezegenimizin geleceğine yaptığınız paha biçilemez<br/>
-                                                    katkılar için teşekkür ederiz.
-                                                </p>
-                                                <div className="grid grid-cols-2 gap-x-2 md:gap-x-8 gap-y-1 max-w-lg mx-auto text-green-900 text-[9px] sm:text-xs md:text-lg font-playfair font-semibold mt-2 md:mt-4 w-full">
-                                                    <div className="text-right opacity-80">Toplam CO₂ Tasarrufu:</div><div className="text-left font-bold">{sonuclar.co2.toFixed(1)} kg</div>
-                                                    <div className="text-right opacity-80">Kurtarılan Ağaç:</div><div className="text-left font-bold">{sonuclar.agac.toFixed(1)} adet</div>
-                                                    <div className="text-right opacity-80">Enerji Tasarrufu:</div><div className="text-left font-bold">{sonuclar.enerji.toFixed(0)} kWh</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Paylaşım Butonları */}
-                                <div className="flex flex-wrap justify-center gap-3 md:gap-4 mt-2">
-                                    <button onClick={() => handleShare('whatsapp')} className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105">
-                                        <Icons.Whatsapp /> <span className="hidden md:inline">WhatsApp</span>
-                                    </button>
-                                    <button onClick={() => handleShare('linkedin')} className="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105">
-                                        <Icons.Linkedin /> <span className="hidden md:inline">LinkedIn</span>
-                                    </button>
-                                    <button onClick={() => handleShare('instagram')} className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105">
-                                        <Icons.Instagram /> <span className="hidden md:inline">Instagram</span>
-                                    </button>
-                                    <button 
-                                        onClick={handleDownload} 
-                                        disabled={isGenerating}
-                                        className="flex items-center gap-2 bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {isGenerating ? (
-                                            <span>Hazırlanıyor...</span>
-                                        ) : (
-                                            <><Icons.Download /> <span className="hidden md:inline">İndir</span></>
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                </div>
-            );
-        };
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<GeriDonusumHesaplayici />);
-    </script>
-</body>
-</html>
