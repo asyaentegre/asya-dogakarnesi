@@ -1,0 +1,358 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geri Dönüşüm Hesaplayıcı ve Sertifikası</title>
+
+    <meta property="og:title" content="2025 Yılı Geri Dönüşüm Karnesi ♻️" />
+    <meta property="og:description" content="Ben karbon ayak izimi hesapladım ve doğaya katkımı sertifikalandırdım. Sen de hemen tıkla, kendi karneni oluştur!" />
+    <meta property="og:image" content="https://asyadogakarnesi.netlify.app/sertifika-yeni.jpg" />
+    <meta property="og:url" content="https://asyadogakarnesi.netlify.app/" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DJHF47CBV7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-DJHF47CBV7');
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Pinyon+Script&display=swap" rel="stylesheet">
+
+    <style>
+        .animate-fade-in { animation: fadeIn 0.5s ease-in; }
+        .animate-scale-in { animation: scaleIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .truncate-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .font-playfair { font-family: 'Playfair Display', serif; }
+        .font-pinyon { font-family: 'Pinyon Script', cursive; }
+        
+        .hardware-accelerated {
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+            will-change: transform;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // ÖNEMLİ DEĞİŞİKLİK: Yerel dosya yolu kullanıldı. Beyaz ekranı çözer.
+        const CERTIFICATE_BG_IMAGE = "./sertifika-yeni.jpg";
+        const ASYA_LOGO_IMAGE = "https://i.ibb.co/FLFp4qn4/asya-ye-il-logo.jpg";
+        const BACKGROUND_VIDEO = "./orman.mp4";
+
+        const Icons = {
+            Recycle: () => (<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-900"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" /></svg>),
+            Calendar: () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>),
+            Leaf: () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>),
+            Cloud: () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.5 19c0-1.7-1.3-3-3-3h-11c-2.2 0-4-1.8-4-4s1.8-4 4-4c.6 0 1.2.1 1.7.4.9-2.6 3.4-4.4 6.3-4.4 3.9 0 7 3.1 7 7 0 .5 0 1-.1 1.5 2.5.6 4.4 2.8 4.4 5.5 0 3.3-2.7 6-6 6h-3z"/></svg>),
+            Droplet: () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2.69l5.74 5.88a6 6 0 0 1-8.48 8.48A6 6 0 0 1 5.5 11.5L12 2.69Z"/></svg>),
+            Lightbulb: () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-1 1.5-2.5 1.5-4a6 6 0 0 0-6-6 6 6 0 0 0-6 6c0 1.5.5 3 1.5 4 .8.8 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>),
+            TreePine: () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m8 14 6-6"/><path d="m18 20 6-6"/><path d="m6 20 6-6"/><path d="M14 8 7 1"/><path d="M17 1 8 10"/><path d="m3 16 2.83-2.83"/><path d="M12 22v-8"/></svg>),
+            RotateCcw: () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-700"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12" /><path d="M3 3v9h9" /></svg>),
+            Medal: () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>),
+            User: () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>),
+            X: () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>),
+            Whatsapp: () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.017-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>),
+            Linkedin: () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>),
+            Instagram: () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>),
+            Download: () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>)
+        };
+
+        const GeriDonusumHesaplayici = () => {
+            const [ad, setAd] = useState('');
+            const [soyad, setSoyad] = useState('');
+            const [kagit, setKagit] = useState('');
+            const [karton, setKarton] = useState('');
+            const [elektronik, setElektronik] = useState('');
+            const [sonuclar, setSonuclar] = useState(null);
+            const [showCertificate, setShowCertificate] = useState(false);
+            const [isGenerating, setIsGenerating] = useState(false);
+
+            const KATSAYILAR = {
+                kagit: { co2: 1.2, su: 50, enerji: 4.5, agac: 0.017 },
+                karton: { co2: 1.4, su: 60, enerji: 5.2, agac: 0.020 },
+                elektronik: { co2: 20.0, su: 200, enerji: 25.0, agac: 0 }
+            };
+
+            const sendAnalyticsEvent = (eventName, eventParams = {}) => {
+                if (window.gtag) {
+                    window.gtag('event', eventName, eventParams);
+                }
+            };
+
+            const hesapla = () => {
+                const kagitAylik = Math.max(0, parseFloat(kagit) || 0);
+                const kartonAylik = Math.max(0, parseFloat(karton) || 0);
+                const elektronikAylik = Math.max(0, parseFloat(elektronik) || 0);
+
+                const kagitYillik = kagitAylik * 12;
+                const kartonYillik = kartonAylik * 12;
+                const elektronikYillik = elektronikAylik * 12;
+
+                const co2Toplam = (kagitYillik * KATSAYILAR.kagit.co2) + (kartonYillik * KATSAYILAR.karton.co2) + (elektronikYillik * KATSAYILAR.elektronik.co2);
+                const suToplam = (kagitYillik * KATSAYILAR.kagit.su) + (kartonYillik * KATSAYILAR.karton.su) + (elektronikYillik * KATSAYILAR.elektronik.su);
+                const enerjiToplam = (kagitYillik * KATSAYILAR.kagit.enerji) + (kartonYillik * KATSAYILAR.karton.enerji) + (elektronikYillik * KATSAYILAR.elektronik.enerji);
+                const agacToplam = (kagitYillik * KATSAYILAR.kagit.agac) + (kartonYillik * KATSAYILAR.karton.agac);
+
+                setSonuclar({
+                    co2: co2Toplam,
+                    su: suToplam,
+                    enerji: enerjiToplam,
+                    agac: agacToplam
+                });
+                
+                sendAnalyticsEvent('hesaplama_yapildi', {
+                    'co2_degeri': co2Toplam.toFixed(2),
+                    'agac_kurtarilan': agacToplam.toFixed(2),
+                    'atık_kg': (kagitYillik + kartonYillik + elektronikYillik)
+                });
+
+                setShowCertificate(false);
+            };
+
+            const temizle = () => {
+                setAd(''); setSoyad(''); setKagit(''); setKarton(''); setElektronik('');
+                setSonuclar(null); setShowCertificate(false);
+            };
+
+            const openCertificate = () => {
+                setShowCertificate(true);
+                sendAnalyticsEvent('sertifika_goruntulendi');
+            }
+
+            const handleShare = (platform) => {
+                const text = `Asya Kağıt & Elektronik ile 2025 yılı karbon ayak izimi hesapladım! Doğaya katkım: ${sonuclar.co2.toFixed(1)} kg CO2 tasarrufu. Sen de hesapla!`;
+                const url = "https://asyadogakarnesi.netlify.app/"; 
+
+                sendAnalyticsEvent('paylasim_yapildi', {
+                    'platform': platform
+                });
+
+                if (platform === 'whatsapp') {
+                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`, '_blank');
+                } else if (platform === 'linkedin') {
+                    window.open(`https://www.linkedin.com/feed/?shareActive&text=${encodeURIComponent(text + " " + url)}`, '_blank');
+                } else if (platform === 'instagram') {
+                    alert("Instagram'da paylaşmak için lütfen sertifikanızı indirin ve hikayenizde/gönderinizde paylaşın!");
+                }
+            };
+
+            const handleDownload = async () => {
+                if (typeof html2canvas === 'undefined') {
+                    alert("Görsel oluşturucu yüklenemedi. Lütfen sayfayı yenileyin.");
+                    return;
+                }
+
+                setIsGenerating(true);
+                const element = document.getElementById('certificate-card'); 
+                
+                if (!element) {
+                    setIsGenerating(false);
+                    return;
+                }
+
+                try {
+                    const canvas = await html2canvas(element, { 
+                        scale: 2, 
+                        // ÖNEMLİ: Yerel dosya kullandığımız için useCORS: false yaptık. Bu çökme riskini azaltır.
+                        useCORS: false, 
+                        allowTaint: true,
+                        backgroundColor: null 
+                    });
+
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL("image/png");
+                    link.download = `Asya-Geri-Donusum-Sertifikasi-${ad || 'Gonullu'}.png`;
+                    link.click();
+                    
+                    sendAnalyticsEvent('dosya_indirildi', {
+                        'dosya_tipi': 'sertifika_png'
+                    });
+
+                } catch (error) {
+                    console.error("Görsel hatası:", error);
+                    alert("Sertifika indirilirken bir sorun oluştu. Lütfen ekran görüntüsü almayı deneyin.");
+                } finally {
+                    setIsGenerating(false);
+                }
+            };
+
+            return (
+                <div className="min-h-screen relative flex items-center justify-center font-sans overflow-hidden">
+                    
+                    {/* ARKA PLAN */}
+                    <div className="fixed top-0 left-0 w-full h-full -z-20 hardware-accelerated bg-green-950">
+                        <div className="absolute inset-0 bg-black md:hidden"></div>
+                        <video 
+                            autoPlay loop muted playsInline preload="auto" 
+                            className="w-full h-full object-cover hardware-accelerated"
+                        >
+                            <source src={BACKGROUND_VIDEO} type="video/mp4" />
+                        </video>
+                    </div>
+
+                    <div className="fixed top-0 left-0 w-full h-full bg-black/30 -z-10"></div>
+
+                    <div className="max-w-4xl mx-auto relative z-10 w-full px-4">
+                        
+                        <div className="bg-white/85 rounded-2xl shadow-2xl p-6 md:p-8 animate-fade-in border border-white/60 hardware-accelerated">
+                            
+                            <div className="flex flex-col md:flex-row items-center md:justify-between gap-4 mb-6 text-center md:text-left">
+                                <div className="flex items-center gap-3">
+                                    <Icons.Recycle />
+                                    <div>
+                                        <h1 className="text-2xl md:text-3xl font-bold text-green-900 drop-shadow-sm">2025 Yılı Geri Dönüşüm Özeti</h1>
+                                        <p className="text-green-800 mt-1 text-sm md:text-base font-medium">Kişisel bilgilerinizi ve aylık atık miktarınızı girin</p>
+                                    </div>
+                                </div>
+                                <img src={ASYA_LOGO_IMAGE} alt="Logo" className="h-24 md:h-32 w-auto object-contain mix-blend-multiply rounded-lg" />
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-4 mb-4">
+                                <div className="bg-white/60 p-4 rounded-xl border border-white/50 shadow-sm hover:border-green-400 transition-colors">
+                                    <label className="block text-sm font-bold text-green-900 mb-2 flex items-center gap-2"><Icons.User /> Adınız</label>
+                                    <input type="text" value={ad} onChange={(e) => setAd(e.target.value)} className="w-full px-3 py-2 border border-green-200/50 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none text-lg bg-white/70 placeholder-green-900/50 text-green-900 font-medium" placeholder="Adınız" />
+                                </div>
+                                <div className="bg-white/60 p-4 rounded-xl border border-white/50 shadow-sm hover:border-green-400 transition-colors">
+                                    <label className="block text-sm font-bold text-green-900 mb-2 flex items-center gap-2"><Icons.User /> Soyadınız</label>
+                                    <input type="text" value={soyad} onChange={(e) => setSoyad(e.target.value)} className="w-full px-3 py-2 border border-green-200/50 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none text-lg bg-white/70 placeholder-green-900/50 text-green-900 font-medium" placeholder="Soyadınız" />
+                                </div>
+                            </div>
+
+                            <div className="grid md:grid-cols-3 gap-4 md:gap-6 mb-8">
+                                {[
+                                    { label: 'Kağıt', val: kagit, set: setKagit },
+                                    { label: 'Karton', val: karton, set: setKarton },
+                                    { label: 'Elektronik Atık', val: elektronik, set: setElektronik }
+                                ].map((item, idx) => (
+                                    <div key={idx} className="bg-white/60 p-4 rounded-xl border border-white/50 shadow-sm hover:border-green-400 transition-colors">
+                                        <label className="block text-sm font-bold text-green-900 mb-2">{item.label}</label>
+                                        <div className="flex items-center gap-2">
+                                            <input type="number" min="0" value={item.val} onChange={(e) => item.set(e.target.value)} className="flex-1 px-3 py-2 border border-green-200/50 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none text-lg w-full bg-white/70 placeholder-green-900/50 text-green-900 font-medium" placeholder="0" />
+                                            <span className="text-sm text-green-800 font-bold whitespace-nowrap">kg/ay</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="flex justify-center gap-4 mb-8">
+                                <button onClick={temizle} className="flex items-center gap-2 bg-white/70 hover:bg-white/90 text-green-900 font-bold py-3 px-6 rounded-xl transition-colors shadow-sm border border-green-200"><Icons.RotateCcw /> Temizle</button>
+                                <button onClick={hesapla} className="bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all text-lg">HESAPLA</button>
+                            </div>
+
+                            {sonuclar && (
+                                <div className="bg-gradient-to-r from-green-700/95 to-emerald-800/95 rounded-xl p-6 md:p-8 text-white animate-fade-in shadow-inner border border-white/20">
+                                    <h2 className="text-xl md:text-2xl font-bold mb-6 flex items-center justify-center md:justify-start gap-2"><Icons.Leaf /> 2025 Yılı Çevresel Katkınız</h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                                        <div className="bg-white/10 rounded-lg p-4 flex flex-col justify-between h-32 border border-white/20 hover:bg-white/20 transition-colors"><div className="flex items-center gap-2 text-green-50 font-semibold"><Icons.Cloud /> <span>CO₂ Tasarrufu</span></div><div><p className="text-2xl md:text-3xl font-bold truncate-text">{sonuclar.co2.toFixed(2)}</p><p className="text-xs opacity-80 mt-1">kg/yıl</p></div></div>
+                                        <div className="bg-white/10 rounded-lg p-4 flex flex-col justify-between h-32 border border-white/20 hover:bg-white/20 transition-colors"><div className="flex items-center gap-2 text-green-50 font-semibold"><Icons.Droplet /> <span>Su Tasarrufu</span></div><div><p className="text-2xl md:text-3xl font-bold truncate-text">{sonuclar.su.toFixed(2)}</p><p className="text-xs opacity-80 mt-1">litre/yıl</p></div></div>
+                                        <div className="bg-white/10 rounded-lg p-4 flex flex-col justify-between h-32 border border-white/20 hover:bg-white/20 transition-colors"><div className="flex items-center gap-2 text-green-50 font-semibold"><Icons.Lightbulb /> <span>Enerji Tasarrufu</span></div><div><p className="text-2xl md:text-3xl font-bold truncate-text">{sonuclar.enerji.toFixed(2)}</p><p className="text-xs opacity-80 mt-1">kWh/yıl</p></div></div>
+                                        <div className="bg-white/10 rounded-lg p-4 flex flex-col justify-between h-32 border border-white/20 hover:bg-white/20 transition-colors"><div className="flex items-center gap-2 text-green-50 font-semibold"><Icons.TreePine /> <span>Ağaç Tasarrufu</span></div><div><p className="text-2xl md:text-3xl font-bold truncate-text">{sonuclar.agac.toFixed(2)}</p><p className="text-xs opacity-80 mt-1">adet/yıl</p></div></div>
+                                    </div>
+                                    <div className="flex justify-center animate-fade-in delay-200">
+                                        <button onClick={openCertificate} className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 px-10 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 text-xl border-2 border-amber-300/50"><Icons.Medal /> Sertifika Oluştur</button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* SERTİFİKA MODAL */}
+                    {showCertificate && sonuclar && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
+                            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowCertificate(false)}></div>
+                            
+                            <div className="relative w-full max-w-4xl flex flex-col gap-4 animate-scale-in">
+                                
+                                <div className="relative w-full">
+                                    <button onClick={() => setShowCertificate(false)} className="absolute -top-12 right-0 md:-right-12 z-50 bg-white/90 p-2 rounded-full hover:bg-red-100 text-gray-800 hover:text-red-600 transition-colors shadow-lg"><Icons.X /></button>
+                                    
+                                    {/* FOTOĞRAFI ÇEKİLECEK ALAN */}
+                                    <div id="certificate-card" className="relative w-full bg-[#fdfbf7] rounded-xl shadow-2xl overflow-hidden border-4 border-amber-700/50">
+                                        <div className="relative w-full h-auto">
+                                            {/* crossOrigin YOK, normal resim */}
+                                            <img src={CERTIFICATE_BG_IMAGE} alt="Doğa Dostu Sertifikası" className="w-full h-auto block" />
+                                            
+                                            {/* KONUMLANDIRMA: 
+                                                Mobile: top-[46%] (Daha yukarı)
+                                                Desktop: md:top-[60%] (Daha aşağı)
+                                            */}
+                                            <div className="absolute top-[46%] md:top-[60%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80%] text-center">
+                                                <p className="text-[10px] sm:text-xs md:text-xl lg:text-2xl text-gray-800 mb-1 md:mb-4 leading-tight font-playfair font-medium italic">
+                                                    Sayın <span className="font-bold">{ad ? ad : 'Doğa'} {soyad ? soyad : 'Gönüllüsü'}</span>,<br/>
+                                                    2025 yılındaki geri dönüşüm faaliyetlerinizle<br/>
+                                                    gezegenimizin geleceğine yaptığınız paha biçilemez<br/>
+                                                    katkılar için teşekkür ederiz.
+                                                </p>
+                                                <div className="grid grid-cols-2 gap-x-2 md:gap-x-8 gap-y-1 max-w-lg mx-auto text-green-900 text-[9px] sm:text-xs md:text-lg font-playfair font-semibold mt-2 md:mt-4">
+                                                    <div className="text-right opacity-80">Toplam CO₂ Tasarrufu:</div><div className="text-left font-bold">{sonuclar.co2.toFixed(1)} kg</div>
+                                                    <div className="text-right opacity-80">Kurtarılan Ağaç:</div><div className="text-left font-bold">{sonuclar.agac.toFixed(1)} adet</div>
+                                                    <div className="text-right opacity-80">Enerji Tasarrufu:</div><div className="text-left font-bold">{sonuclar.enerji.toFixed(0)} kWh</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Paylaşım Butonları */}
+                                <div className="flex flex-wrap justify-center gap-3 md:gap-4 mt-2">
+                                    <button onClick={() => handleShare('whatsapp')} className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105">
+                                        <Icons.Whatsapp /> <span className="hidden md:inline">WhatsApp</span>
+                                    </button>
+                                    <button onClick={() => handleShare('linkedin')} className="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105">
+                                        <Icons.Linkedin /> <span className="hidden md:inline">LinkedIn</span>
+                                    </button>
+                                    <button onClick={() => handleShare('instagram')} className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105">
+                                        <Icons.Instagram /> <span className="hidden md:inline">Instagram</span>
+                                    </button>
+                                    <button 
+                                        onClick={handleDownload} 
+                                        disabled={isGenerating}
+                                        className="flex items-center gap-2 bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {isGenerating ? (
+                                            <span>Hazırlanıyor...</span>
+                                        ) : (
+                                            <><Icons.Download /> <span className="hidden md:inline">İndir</span></>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<GeriDonusumHesaplayici />);
+    </script>
+</body>
+</html>
